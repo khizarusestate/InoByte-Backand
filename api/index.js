@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 const app = express();
 
 app.use(cors({
-    methods: "POST",
+    methods: ["POST" , "GET"],
     origin: "https://ino-byte.vercel.app",
     allowedHeaders: "Content-Type"
 }));
@@ -47,3 +47,4 @@ app.post('/help', async (req, res) => {
 });
 
 app.listen(process.env.PORT||5000,()=>console.log("Server is running!"))
+
