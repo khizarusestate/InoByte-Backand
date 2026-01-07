@@ -1,50 +1,49 @@
+import express from 'express';
+import cors from 'cors';
 import nodemailer from 'nodemailer';
 
-export default async function handler(req, res) {
-  // Handle preflight requests for CORS
-  res.setHeader("Access-Control-Allow-Origin", "https://ino-byte.vercel.app");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+const app = express();
 
-  if (req.method === "OPTIONS") {
-    return res.status(200).end(); // CORS preflight
-  }
+app.use(cors({
+    methods: "POST",
+    origin: "https://ino-byte.vercel.app",
+    allowedHeaders: "Content-Type"
+}));
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method Not Allowed" });
-  }
+app.use(express.json());
 
-  const { email, help } = req.body;
+app.post('/help', async (req, res) => {
+    const { email, help } = req.body;
 
-  const transport = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.Gmail,
-      pass: process.env.Password,
-    },
-  });
-
-  try {
-    // Email to your company
-    await transport.sendMail({
-      to: process.env.Gmail,
-      from: process.env.Gmail,
-      subject: "A Request From InoByte",
-      text: `From: ${email}. Request: ${help}`,
+    const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.Gmail,
+            pass: process.env.Password
+        }
     });
 
-    // Confirmation email to user
-    await transport.sendMail({
-      to: email,
-      from: process.env.CompanyGmail,
-      subject: `Hi ${email}! Your Request was Sent to InoByte`,
-      text: "Please wait for our response. Thanks for your patience!",
-    });
+    try {
+        await transport.sendMail({
+            to: process.env.Gmail,
+            from: process.env.Gmail,
+            subject: `A Request From InoByte`,
+            text: `From: ${email}. Request: ${help}`
+        });
 
-    console.log("Email Sent");
-    res.status(201).json({ message: "Email sent successfully" });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to send email" });
-  }
-}
+        await transport.sendMail({
+            to: email,
+            from: process.env.CompanyGmail,
+            subject: `Hi ${email}! Your Request was Sent to InoByte`,
+            text: `Please wait for our response. Thanks for your Patience!`
+        });
+
+        console.log("Email Sent");
+        res.status(201).end();
+    } catch (err) {
+        res.status(500).end();
+        console.log(err);
+    }
+});
+
+app.listen(process.env.PORT||5000,()=>console.log("Server is running!"))
