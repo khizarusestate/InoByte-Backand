@@ -1,54 +1,54 @@
-import express from "express";
-import cors from "cors";
-import sgMail from "@sendgrid/mail";
+import express from 'express';
+import cors from 'cors';
+import nodemailer from 'nodemailer';
 
 const app = express();
 
-// Set SendGrid API Key from environment
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
 app.use(cors({
-  origin: "https://ino-byte.vercel.app",
-  methods: ["POST", "GET"],
-  allowedHeaders: ["Content-Type"]
+    methods: "POST",
+    origin: "https://ino-byte.vercel.app",
+    allowedHeaders: "Content-Type"
 }));
 
 app.use(express.json());
 
-// Optional: GET route for browser friendly test
-app.get('/help', (req,res)=>{
-  res.send("POST /help endpoint is live. Use a POST request to send data.");
+app.post('/help', async (req, res) => {
+    const { email, help } = req.body;
+
+    const transport = nodemailer.createTransport({
+        service: "gmail",
+        auth: {
+            user: process.env.GMAIL_USER,    // Gmail address
+            pass: process.env.GMAIL_APP_PASS // Gmail App Password
+        }
+    });
+
+    try {
+        // Email to company
+        await transport.sendMail({
+            to: process.env.GMAIL_USER,
+            from: process.env.GMAIL_USER,
+            subject: `A Request From InoByte`,
+            text: `From: ${email}. Request: ${help}`
+        });
+
+        // Email to user
+        await transport.sendMail({
+            to: email,
+            from: process.env.GMAIL_USER,
+            subject: `Hi ${email}! Your Request was Sent to InoByte`,
+            text: `Please wait for our response. Thanks for your patience!`
+        });
+
+        console.log("Email Sent");
+        res.status(201).json({ message: "Emails sent successfully!" });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ error: "Error sending emails" });
+    }
 });
 
-// POST /help route
-app.post("/help", async (req, res) => {
-  const { email, help } = req.body;
-
-  const msgToCompany = {
-    to: process.env.CompanyGmail,
-    from: process.env.CompanyGmail,
-    subject: "A Request From InoByte",
-    text: `From: ${email}. Request: ${help}`,
-  };
-
-  const msgToUser = {
-    to: email,
-    from: process.env.CompanyGmail,
-    subject: `Hi ${email}! Your Request was Sent to InoByte`,
-    text: "Please wait for our response. Thanks for your patience!",
-  };
-
-  try {
-    await sgMail.send(msgToCompany);
-    await sgMail.send(msgToUser);
-
-    console.log("Emails sent via SendGrid!");
-    res.status(201).json({ message: "Request sent successfully!" });
-  } catch (err) {
-    console.log("SendGrid Error:", err);
-    res.status(500).json({ error: "Server Error. Check logs." });
-  }
+// Railway expects the app to listen on process.env.PORT
+app.listen(process.env.PORT || 5000, () => {
+    console.log(`Server running on port ${process.env.PORT || 5000}`);
 });
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
