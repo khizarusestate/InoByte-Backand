@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
   // -------------------- 1. CORS --------------------
-  res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte-nvit.vercel.app'); // frontend domain
+  res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte.vercel.app'); // frontend domain
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -62,3 +62,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
+
