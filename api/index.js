@@ -11,12 +11,6 @@ export default async function handler(req, res) {
     return res.status(200).end(); // respond to preflight
   }
 
-  // ---------- 3. Only allow POST ----------
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
-
-  // ---------- 4. Parse JSON body safely ----------
   let body;
   try {
     body = JSON.parse(req.body);
@@ -62,3 +56,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
+
