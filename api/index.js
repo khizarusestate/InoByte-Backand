@@ -1,9 +1,8 @@
-// File: /api/index.js
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
   // -------------------- 1. CORS --------------------
-  res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte.vercel.app'); // frontend domain
+  res.setHeader('Access-Control-Allow-Origin', process.env.FRONTEND_URL);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -17,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // -------------------- 4. Use req.body directly --------------------
+  // -------------------- 4. Get data from body --------------------
   const { email, help } = req.body;
 
   if (!email || !help) {
@@ -28,16 +27,16 @@ export default async function handler(req, res) {
   const transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: 'services.inobyte@gmail.com',     // Hardcoded for testing
-      pass: 'vhqf bujd cwrb shjm'             // Hardcoded App Password (spaces included if Gmail generated)
+      user: process.env.Gmail,
+      pass: process.env.Password
     }
   });
 
   try {
     // Email to company
     await transport.sendMail({
-      to: 'services.inobyte@gmail.com',
-      from: 'services.inobyte@gmail.com',
+      to: process.env.Gmail,
+      from: process.env.Gmail,
       subject: `A Request From InoByte`,
       text: `From: ${email}. Request: ${help}`
     });
@@ -45,7 +44,7 @@ export default async function handler(req, res) {
     // Email to user
     await transport.sendMail({
       to: email,
-      from: 'services.inobyte@gmail.com',
+      from: process.env.Gmail,
       subject: `Hi ${email}! Your Request was Sent to InoByte`,
       text: `Please wait for our response. Thanks!`
     });
