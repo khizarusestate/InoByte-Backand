@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer';
-impo
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte-nvit.vercel.app'); // frontend domain
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -50,5 +49,6 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
+
 
 
