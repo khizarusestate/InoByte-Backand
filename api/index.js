@@ -16,15 +16,9 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // -------------------- 4. Parse JSON --------------------
-  let body;
-  try {
-    body = JSON.parse(req.body);
-  } catch {
-    return res.status(400).json({ error: 'Invalid JSON' });
-  }
+  // -------------------- 4. Use req.body directly --------------------
+  const { email, help } = req.body; // ✅ no JSON.parse
 
-  const { email, help } = body;
   if (!email || !help) {
     return res.status(400).json({ error: 'Missing email or help' });
   }
@@ -62,4 +56,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
-
