@@ -1,3 +1,4 @@
+// File: /api/index.js
 import nodemailer from 'nodemailer';
 
 export default async function handler(req, res) {
@@ -17,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   // -------------------- 4. Use req.body directly --------------------
-  const { email, help } = req.body; // ✅ no JSON.parse
+  const { email, help } = req.body;
 
   if (!email || !help) {
     return res.status(400).json({ error: 'Missing email or help' });
@@ -27,16 +28,16 @@ export default async function handler(req, res) {
   const transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASS
+      user: 'services.inobyte@gmail.com',     // Hardcoded for testing
+      pass: 'vhqf bujd cwrb shjm'             // Hardcoded App Password (spaces included if Gmail generated)
     }
   });
 
   try {
     // Email to company
     await transport.sendMail({
-      to: process.env.GMAIL_USER,
-      from: process.env.GMAIL_USER,
+      to: 'services.inobyte@gmail.com',
+      from: 'services.inobyte@gmail.com',
       subject: `A Request From InoByte`,
       text: `From: ${email}. Request: ${help}`
     });
@@ -44,7 +45,7 @@ export default async function handler(req, res) {
     // Email to user
     await transport.sendMail({
       to: email,
-      from: process.env.GMAIL_USER,
+      from: 'services.inobyte@gmail.com',
       subject: `Hi ${email}! Your Request was Sent to InoByte`,
       text: `Please wait for our response. Thanks!`
     });
