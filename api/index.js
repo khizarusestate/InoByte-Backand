@@ -1,22 +1,35 @@
 import nodemailer from 'nodemailer';
+
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte.vercel.app'); // frontend domain
+  // ---------- 1. CORS headers ----------
+  res.setHeader('Access-Control-Allow-Origin', 'https://ino-byte-nvit.vercel.app'); // frontend domain
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // ---------- 2. Preflight OPTIONS ----------
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end(); // respond to preflight
+  }
+
+  // ---------- 3. Only allow POST ----------
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
+  // ---------- 4. Parse JSON body safely ----------
   let body;
   try {
-    body = JSON.parse(req.body); // serverless req.body is string
-  } catch (err) {
+    body = JSON.parse(req.body);
+  } catch {
     return res.status(400).json({ error: 'Invalid JSON' });
   }
 
   const { email, help } = body;
-
   if (!email || !help) {
     return res.status(400).json({ error: 'Missing email or help' });
   }
 
-  // Setup transporter
+  // ---------- 5. Nodemailer ----------
   const transport = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -39,7 +52,7 @@ export default async function handler(req, res) {
       to: email,
       from: process.env.GMAIL_USER,
       subject: `Hi ${email}! Your Request was Sent to InoByte`,
-      text: `Please wait for our response. Thanks for your patience!`
+      text: `Please wait for our response. Thanks!`
     });
 
     console.log('Emails Sent');
@@ -49,7 +62,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
-
-
-
-
