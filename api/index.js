@@ -1,11 +1,7 @@
 import nodemailer from 'nodemailer';
-
+impo
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
 
-  // Parse body safely
   let body;
   try {
     body = JSON.parse(req.body); // serverless req.body is string
@@ -52,3 +48,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Error sending emails' });
   }
 }
+
